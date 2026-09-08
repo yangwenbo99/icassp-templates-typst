@@ -54,6 +54,42 @@ build() {
   pass=$((pass + 1))
 }
 
+echo "icassp 2027"
+if build tests/icassp.typ icassp; then
+  ref=reference/icassp-2027/Template.pdf
+  check "icassp title"        "$(baseline "$out/icassp.pdf" 1 'AUTHOR GUIDELINES')" "$(baseline "$ref" 1 'AUTHORGUIDELINES')"
+  check "icassp authors"      "$(baseline "$out/icassp.pdf" 1 'Author\\(s\\)')"  "$(baseline "$ref" 1 'Author\\(s\\)')"
+  check "icassp affiliation"  "$(baseline "$out/icassp.pdf" 1 'Author Affiliation')" "$(baseline "$ref" 1 'AuthorAffiliation')"
+  check "icassp abstract"     "$(baseline "$out/icassp.pdf" 1 'ABSTRACT4.TYPE')"   "$(baseline "$ref" 1 'ABSTRACT4.TYPE')"
+  check "icassp body"         "$(baseline "$out/icassp.pdf" 1 'The abstract should')" "$(baseline "$ref" 1 'Theabstractshould')"
+  check "icassp keywords"     "$(baseline "$out/icassp.pdf" 1 'Index Terms')"      "$(baseline "$ref" 1 'IndexTerms')"
+  check "icassp section 1"    "$(baseline "$out/icassp.pdf" 1 '1.INTRODUCTION')"   "$(baseline "$ref" 1 '1.INTRODUCTION')"
+  # The first body line after a heading, not just the heading itself.
+  check "icassp body after s1" "$(./scripts/baselines.sh "$out/icassp.pdf" 1 300 \
+                                  | sed -n '/1.INTRODUCTION/,+1p' | tail -1 | awk '{print $1}')" \
+                               "$(./scripts/baselines.sh "$ref" 1 300 \
+                                  | sed -n '/1.INTRODUCTION/,+1p' | tail -1 | awk '{print $1}')"
+  # The thanks note under its rule at the bottom of page one.
+  check "icassp thanks"       "$(baseline "$out/icassp.pdf" 1 'Thanks to XYZ')"    "$(baseline "$ref" 1 'ThankstoXYZ')"
+  # \flushbottom stretches section spacing by an amount that depends on the
+  # column's content, which Typst's fixed skips cannot reproduce. The left
+  # column matches exactly; the right column carries ~4pt of stretch, so its
+  # landmarks use a matching tolerance.
+  check "icassp section 2"    "$(baseline "$out/icassp.pdf" 1 '2.FORMATTING')"    "$(baseline "$ref" 1 '2.FORMATTING')" 1
+  check "icassp section 5"    "$(baseline "$out/icassp.pdf" 1 '5.MAJOR')"          "$(baseline "$ref" 1 '5.MAJOR')" 4
+  check "icassp subsection"   "$(baseline "$out/icassp.pdf" 1 '5.1.Subheadings')"  "$(baseline "$ref" 1 '5.1.Subheadings')" 4
+  check "icassp subsub"       "$(baseline "$out/icassp.pdf" 1 '5.1.1.Sub-sub')"    "$(baseline "$ref" 1 '5.1.1.Sub-sub')" 4
+  # Page 2 opens with the continuation of the printing paragraph in both.
+  check "icassp page 2 head"  "$(baseline "$out/icassp.pdf" 2 'leave the extra')" "$(baseline "$ref" 2 'leavetheextra')"
+  # Page 3 carries the references section and the numbered list heading. The
+  # page sits at the nominal (unstretched) spacing, so it runs a few points
+  # lower than the page-1-calibrated skips.
+  check "icassp references"   "$(baseline "$out/icassp.pdf" 3 '12.REFERENCES')"    "$(baseline "$ref" 3 '12.REFERENCES')"
+  check "icassp bib heading"  "$(./scripts/baselines.sh "$out/icassp.pdf" 3 300 | grep REFERENCES | tail -1 | awk '{print $1}')" \
+                               "$(./scripts/baselines.sh "$ref" 3 300 | grep REFERENCES | tail -1 | awk '{print $1}')" 3
+  check "icassp bib entry"    "$(baseline "$out/icassp.pdf" 3 'A. B. Smith')"      "$(baseline "$ref" 3 'A.B.Smith')" 3
+fi
+
 echo "conference: bare demo"
 if build tests/conference.typ conf; then
   check "title"        "$(baseline "$out/conf.pdf" 1 'Bare Demo')"    71
@@ -276,6 +312,15 @@ echo "starter template"
 sed 's|@preview/ieee-templates:0.1.0|/src/lib.typ|' template/main.typ > "$out/starter.typ"
 cp template/refs.bib "$out/refs.bib"
 build "$out/starter.typ" starter
+
+echo "icassp demo"
+# template/icassp.typ reproduces the official ICASSP 2027 sample. It imports the
+# local source already, so it only needs its bibliography beside it.
+cp template/icassp.typ "$out/icassp-demo.typ"
+cp template/icassp-refs.bib "$out/icassp-refs.bib"
+if build "$out/icassp-demo.typ" icassp-demo; then
+  check "icassp demo title" "$(baseline "$out/icassp-demo.pdf" 1 'AUTHOR GUIDELINES')" "$(baseline reference/icassp-2027/Template.pdf 1 'AUTHORGUIDELINES')"
+fi
 
 echo "README previews"
 # The images in assets/ are generated, and nothing else here would notice them

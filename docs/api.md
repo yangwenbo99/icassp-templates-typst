@@ -1,6 +1,47 @@
 # API
 
-Five layout functions and five helpers, all exported from `src/lib.typ`.
+Six layout functions and five helpers, all exported from `src/lib.typ`.
+
+## `icassp`
+
+The ICASSP layout, ported from `spconf.sty` and the ICASSP paper kit rather
+than from IEEEtran. It is verified against the official 2027 template render in
+`reference/icassp-2027/Template.pdf`.
+
+| Argument | Type | Default | Notes |
+|---|---|---|---|
+| `paper` | `"us-letter"` \| `"a4"` | `"us-letter"` | A4 anchors the text block top-left and leaves the extra height at the bottom |
+| `size` | length | `10pt` | Body font size; must be at least 9pt, else compilation is refused |
+| `line-spacing` | length | `11.955pt` | Baseline-to-baseline advance; must be at least 9pt and at least `size` |
+| `title` | content | `[]` | Set bold 12pt and uppercased, as `\title` does; avoid math in it, the kit forbids it |
+| `authors` | array of dicts | `()` | As `ieee-conference`, but names are set italic |
+| `thanks` | content | `none` | Funding note; unmarked, under a short rule at the bottom of page 1 |
+| `abstract` | content | `none` | Preceded by a centred bold `ABSTRACT` label |
+| `index-terms` | content | `none` | Runs in after a bold-italic `Index Terms—` |
+| `bibliography` | content | `none` | The heading is a numbered section (`13. REFERENCES`) |
+
+`size` and `line-spacing` are validated against the kit and abort compilation
+when violated: the font must be no smaller than 9pt throughout (the title block
+and footnotes stay at their fixed 12pt and 9pt), and the line spacing must
+obey "no more than 8 lines/inch" (`line-spacing >= 9pt`) with "larger type
+sizes require correspondingly larger vertical spacing" (`line-spacing >= size`).
+The default `line-spacing` is the class's 12pt baselineskip converted from TeX
+points to 11.955pt. `spconf`'s `\ninept` is `size: 9pt, line-spacing: 10.45pt`.
+
+Differences from `ieee-conference` that follow from the paper kit: 178x229mm
+text area, 6mm column gutter, sections numbered `1.` in bold capitals and
+subsections `1.1.` in bold, sub-subsections `1.1.1.` in italics on their own
+line, and the first paragraph after a heading (and the abstract body) left
+unindented. Page numbers are suppressed. Footnotes are 9pt on an 11pt advance
+per the kit; the reference render itself uses LaTeX's 8pt `\footnotesize`, so
+the 9pt note sits on the same baseline but reads one point larger.
+
+Sizes other than the 10pt default are approximate: the title block and the
+em-derived gaps (headings, abstract, keywords) are calibrated at 10pt, and
+only the em-derived ones are scaled by `size / 10pt`. Only `size`/`line-spacing`
+are exposed as arguments; the remaining knobs are the constants at the top of
+`src/icassp.typ` (`heading-skips`, `footnote-size`, `large-size`,
+`thanks-rule-gap`).
 
 ## `ieee-conference`
 

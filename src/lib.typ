@@ -1,6 +1,7 @@
 // Public API.
 
 #import "conference.typ": ieee-conference
+#import "icassp.typ": icassp
 #import "journal.typ": ieee-journal
 #import "transmag.typ": ieee-transmag
 #import "compsoc.typ": ieee-compsoc, ieee-compsoc-conference

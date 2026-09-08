@@ -22,7 +22,8 @@ SOFTWARE.
 
 ---
 
-This licence covers the Typst templates in src/ and template/, and the scripts
+This licence covers the Typst templates in src/ and template/ (excluding the
+ICASSP template, but including its formatting files), and the scripts
 in scripts/. It does NOT cover anything under reference/, which is third-party
 material included for development purposes only:
 

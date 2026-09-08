@@ -92,6 +92,7 @@ To apply a different template, only the function name has to be changed:
 #show: ieee-transmag.with(..)            // Transactions on Magnetics
 #show: ieee-compsoc.with(..)             // Computer Society journals
 #show: ieee-compsoc-conference.with(..)  // Computer Society conferences
+#show: icassp.with(..)                   // ICASSP paper kit (spconf.sty), incl. ICASSP 2027
 ```
 
 Variants of a template can be supplied as arguments:
@@ -108,6 +109,12 @@ Variants of a template can be supplied as arguments:
 `peerreview` to `ieee-journal` only.
 `comsoc` needs no mode of its own: in v1.8b that option only swaps the math fonts, leaving the geometry
 identical to `ieee-journal`. Every argument is listed in [docs/api.md](docs/api.md).
+
+`icassp` is a port of the Signal Processing Society's `spconf.sty` and the ICASSP paper kit rather than
+of IEEEtran. It takes `paper`, `size` and `line-spacing`; the latter two are validated against the kit
+(no smaller than 9pt, no more than 8 lines per inch) and refuse to compile when violated. It is verified
+against the official ICASSP 2027 template render in `reference/icassp-2027/`, and
+`template/icassp.typ` reproduces that sample.
 
 Notes:
 - Only 10pt is verified against IEEE's references. The other sizes set the page geometry and body text correctly, but the title-block spacing is calibrated for 10pt.

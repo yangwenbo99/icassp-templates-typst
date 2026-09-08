@@ -4,14 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository status
 
-Conference and journal layouts both render and are verified against the reference PDFs. Build either
-template with:
+Conference and journal layouts both render and are verified against the reference PDFs, as is the
+ICASSP port. Build either template with:
 
 ```bash
 typst compile --root . template/main.typ out.pdf              # bare conference demo
 typst compile --root . template/conference-062824.typ out.pdf # IEEE's official wrapper, 6 authors
 typst compile --root . template/journal.typ out.pdf           # journal
-scripts/check.sh                                              # regression suite, 29 checks
+typst compile --root . tests/icassp.typ out.pdf               # ICASSP paper kit
+scripts/check.sh                                              # regression suite
 ```
 
 Both modes take `paper: "us-letter"` or `paper: "a4"`. Beyond the layout functions, `src/lib.typ`
@@ -79,6 +80,44 @@ everything below.
 contains the interline gap. Typst's `v()` adds on top of `par.spacing`. A class value carried over
 directly overshoots by exactly that spacing, 1.99pt at 10pt. `journal.typ` has a `vspace()` helper that
 does the conversion.
+
+### The ICASSP port
+
+`src/icassp.typ` is a separate port of `spconf.sty` plus the ICASSP paper kit, verified against
+`reference/icassp-2027/Template.pdf` (the official 2027 sample, which the kit says to use over the
+ICASSP 2025 templates). It shares no geometry with the IEEEtran modes: 178x229mm text area, 6mm gutter,
+`1in` top margin, `\parindent` 15pt, sections `1.` bold capitals, and first paragraphs after headings
+unindented.
+
+Notes that will bite anyone touching it:
+
+- **Footnotes are 9pt on an 11pt advance per the kit**, the article class's `\small`. The
+  reference render uses LaTeX's `\footnotesize` (8pt/9.5), so this is a deliberate deviation: the
+  note keeps the reference's baseline and rule position and only the glyph size differs.
+- **Every vertical constant in `icassp.typ` is calibrated to the render**, not derived: `spconf`'s
+  `\@maketitle` and `\@sect` gaps pass through TeX's topskip/first-line rules and center-environment
+  spacing, which have no Typst equivalent. The paragraph advance is 11.955pt (12 TeX pt converted);
+  the PDF-point 12pt drifts ~0.04pt a line and loses a line off a full column.
+- **The paragraph boundary is `font size + par.spacing`**, so `par.spacing` carries the 1.955pt that
+  makes paragraph boundaries advance a full baselineskip like LaTeX's. The title block pins it back to
+  zero.
+- **A paragraph's `first-line-indent` is frozen before its own show rule can touch it**; no `set
+  par(...)` in `show par` reaches it. The heading show rule sets a one-shot state and the next
+  paragraph is *rebuilt* unindented, carrying a zero-size `box` marker so the show rule can recognise
+  the rebuild and pass it through. Do not "simplify" this without re-checking the `icassp` baseline
+  checks.
+- **The thanks note is a zero-clearance bottom float with a negative inset**, not a footnote: a
+  footnote (or any float with a vertical gap in its content) reserves height inside the column holding
+  the marker, and the reference's columns fill to the bottom with the note below them. The float's
+  content is a `grid` — a `v()` inside a bottom float also inflates the reservation.
+- **`\flushbottom` stretch is not reproducible.** The left column of the sample happens to sit at the
+  values the skips are calibrated to; the right column carries ~4pt of stretch and page 3 sits at the
+  nominal unstretched spacing, so those checks carry tolerances of 1–4pt.
+- **`size` and `line-spacing` are the only body-text knobs**, validated against the kit (`>= 9pt`,
+  `line-spacing >= 9pt` and `>= size`) with `assert`, so a violating document refuses to compile. The
+  title block and footnotes stay fixed (12pt `\large`, 9pt `\small`); only the em-derived gaps scale
+  with `size / 10pt`, so any size other than 10pt is approximate. `\ninept` is `size: 9pt,
+  line-spacing: 10.45pt`.
 
 ## Critical context: upstream is frozen
 

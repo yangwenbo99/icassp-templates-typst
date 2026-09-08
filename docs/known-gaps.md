@@ -54,6 +54,14 @@ plain journal. There is nothing to port.
 is what that environment exists to work around in LaTeX. Only its sub-numbering
 was missing, and `subequations` supplies that.
 
+**`icassp` heading stretch.** `spconf` compiles with `\flushbottom`, which
+stretches the section skips by an amount that depends on each column's content.
+Typst's skips are fixed and calibrated to the sample's left column, so its
+landmarks match exactly while the right column runs ~4pt of stretch lower and
+the reference-list page sits ~3pt at the nominal (unstretched) spacing. The
+`icassp` checks carry tolerances of 1–4pt for those. Multi-row author lists and
+the `\ninept` option have no reference render and are unverified or unwired.
+
 ## Verification debt
 
 **`author-row-gap` rests on two documents**, IEEE's 062824 wrapper and a
