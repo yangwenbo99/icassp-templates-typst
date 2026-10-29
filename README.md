@@ -1,5 +1,7 @@
 # ieee-templates-typst
 
+**(Personally deprecated for ICASSP in favour of <https://github.com/yangwenbo99/typst-icassp-template>)**
+
 [![Tests](https://github.com/langestefan/ieee-templates-typst/actions/workflows/tests.yml/badge.svg)](https://github.com/langestefan/ieee-templates-typst/actions/workflows/tests.yml)
 [![Lint](https://github.com/langestefan/ieee-templates-typst/actions/workflows/lint.yml/badge.svg)](https://github.com/langestefan/ieee-templates-typst/actions/workflows/lint.yml)
 [![Typst](https://img.shields.io/badge/typst-%E2%89%A50.15.0-239dad)](https://typst.app/)
